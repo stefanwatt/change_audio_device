@@ -46,7 +46,6 @@ fn get_input_ids_from_string(inputs: &str) -> Vec<char> {
         .collect::<Vec<char>>()
 }
 
-//works
 fn get_current_default_sink_id() -> char {
     let args = ["defaults"].to_vec();
     exec_with_args("ponymix", args)
@@ -56,7 +55,6 @@ fn get_current_default_sink_id() -> char {
         .collect::<Vec<char>>()[0]
 }
 
-//works
 fn get_sink_ids() -> Vec<char> {
     let args = ["-t", "sink", "list"].to_vec();
     let output = exec_with_args("ponymix", args);
@@ -78,7 +76,6 @@ fn get_sink_ids() -> Vec<char> {
         .collect::<Vec<char>>()
 }
 
-//works
 fn switch_default_sink() -> char {
     let current_default_sink_id = get_current_default_sink_id();
     let sink_ids = get_sink_ids();
