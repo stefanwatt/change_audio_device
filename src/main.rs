@@ -4,15 +4,20 @@ const RELEVANT_SINK_NAMES: [&str; 2] =
     ["PRO X Wireless Gaming Headset Analog Stereo", "SoundCore 2"];
 
 fn main() {
+    change_audio_device();
+}
+
+fn change_audio_device(){
     let new_sink_id = switch_default_sink();
-    let list_inputs_output = exec_with_args("ponymix", &["list", "-t sink-input"]);
+    let args = ["list", "-t sink-input"].to_vec();
+    let list_inputs_output = exec_with_args("ponymix", args);
     let input_ids = get_input_ids_from_string(&list_inputs_output);
     for id in input_ids {
         switch_input_to_sink(id, new_sink_id);
     }
 }
 
-fn exec_with_args(cmd: &str, args: &[&str]) -> String {
+fn exec_with_args(cmd: &str, args: Vec<&str>) -> String {
     let output = Command::new(cmd)
         .args(args)
         .output()
@@ -21,7 +26,16 @@ fn exec_with_args(cmd: &str, args: &[&str]) -> String {
 }
 
 fn switch_input_to_sink(input: char, sink: char) {
-    exec_with_args("ponymix move {sink}", &["-t sink-input", "-d {input}"]);
+    let mut input_arg = String::new();
+    input_arg.push_str("-d ");
+    input_arg.push(input);
+
+    let mut sink_arg = String::new();
+    sink_arg.push_str("move ");
+    sink_arg.push(sink);
+
+    let args = ["-t sink-input", &*input_arg, &*sink_arg].to_vec();
+    exec_with_args("ponymix", args);
 }
 
 fn get_input_ids_from_string(inputs: &str) -> Vec<char> {
@@ -32,17 +46,21 @@ fn get_input_ids_from_string(inputs: &str) -> Vec<char> {
         .collect::<Vec<char>>()
 }
 
+//works
 fn get_current_default_sink_id() -> char {
-    exec_with_args("ponymix", &["defaults"])
+    let args = ["defaults"].to_vec();
+    exec_with_args("ponymix", args)
         .split("\n")
         .filter(|line| line.contains("sink"))
         .map(|output| output.chars().filter(|c| c.is_digit(10)).nth(0).unwrap())
         .collect::<Vec<char>>()[0]
 }
 
+//works
 fn get_sink_ids() -> Vec<char> {
-    let output = exec_with_args("ponymix", &["-t", "sink", "list"]);
-    let split = output.split("sink");
+    let args = ["-t", "sink", "list"].to_vec();
+    let output = exec_with_args("ponymix", args);
+    let split = output.split("%");
     let chunks = split
         .filter(|chunk| {
             chunk.contains(RELEVANT_SINK_NAMES[0]) || chunk.contains(RELEVANT_SINK_NAMES[1])
@@ -60,6 +78,7 @@ fn get_sink_ids() -> Vec<char> {
         .collect::<Vec<char>>()
 }
 
+//works
 fn switch_default_sink() -> char {
     let current_default_sink_id = get_current_default_sink_id();
     let sink_ids = get_sink_ids();
@@ -67,6 +86,10 @@ fn switch_default_sink() -> char {
         .iter()
         .filter(|&&id| id != current_default_sink_id)
         .collect::<Vec<&char>>()[0];
-    exec_with_args("ponymix", &["set-default", "-d {new_sink_id}"]);
+    let mut id_arg = String::new();
+    id_arg.push_str("-d ");
+    id_arg.push(*new_sink_id);
+    let args = ["set-default", &*id_arg].to_vec();
+    exec_with_args("ponymix", args);
     return *new_sink_id;
 }
