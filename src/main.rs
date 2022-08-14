@@ -9,7 +9,7 @@ fn main() {
 
 fn change_audio_device(){
     let new_sink_id = switch_default_sink();
-    let args = ["list", "-t sink-input"].to_vec();
+    let args = vec!["list", "-t sink-input"];
     let list_inputs_output = exec_with_args("ponymix", args);
     let input_ids = get_input_ids_from_string(&list_inputs_output);
     for id in input_ids {
@@ -42,7 +42,7 @@ fn get_input_ids_from_string(inputs: &str) -> Vec<char> {
 }
 
 fn get_current_default_sink_id() -> char {
-    let args = ["defaults"].to_vec();
+    let args = vec!["defaults"];
     exec_with_args("ponymix", args)
         .split("\n")
         .filter(|line| line.contains("sink"))
@@ -51,7 +51,7 @@ fn get_current_default_sink_id() -> char {
 }
 
 fn get_sink_ids() -> Vec<char> {
-    let args = ["-t", "sink", "list"].to_vec();
+    let args = vec!["-t", "sink", "list"];
     let output = exec_with_args("ponymix", args);
     let split = output.split("%");
     let chunks = split
@@ -81,7 +81,7 @@ fn switch_default_sink() -> char {
     let mut id_arg = String::new();
     id_arg.push_str("-d ");
     id_arg.push(*new_sink_id);
-    let args = ["set-default", &*id_arg].to_vec();
+    let args = vec!["set-default", &*id_arg];
     exec_with_args("ponymix", args);
     return *new_sink_id;
 }
