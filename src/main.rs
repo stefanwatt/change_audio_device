@@ -13,7 +13,7 @@ fn change_audio_device(){
     let list_inputs_output = exec_with_args("ponymix", args);
     let input_ids = get_input_ids_from_string(&list_inputs_output);
     for id in input_ids {
-        switch_input_to_sink(id, new_sink_id);
+        switch_input_to_sink(&id, &new_sink_id);
     }
 }
 
@@ -25,16 +25,11 @@ fn exec_with_args(cmd: &str, args: Vec<&str>) -> String {
     str::from_utf8(&output.stdout).unwrap().to_owned()
 }
 
-fn switch_input_to_sink(input: char, sink: char) {
-    let mut input_arg = String::new();
-    input_arg.push_str("-d ");
-    input_arg.push(input);
+fn switch_input_to_sink(input: &char, sink: &char) {
+    let input_arg = &format!("-d {input}")[..];
+    let sink_arg = &format!("move {sink}")[..];
+    let args = ["-t sink-input", input_arg, sink_arg].to_vec();
 
-    let mut sink_arg = String::new();
-    sink_arg.push_str("move ");
-    sink_arg.push(sink);
-
-    let args = ["-t sink-input", &*input_arg, &*sink_arg].to_vec();
     exec_with_args("ponymix", args);
 }
 
