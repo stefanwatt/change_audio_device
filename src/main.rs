@@ -26,9 +26,9 @@ fn exec_with_args(cmd: &str, args: Vec<&str>) -> String {
 }
 
 fn switch_input_to_sink(input: &char, sink: &char) {
-    let input_arg = &format!("-d {input}")[..];
-    let sink_arg = &format!("move {sink}")[..];
-    let args = ["-t sink-input", input_arg, sink_arg].to_vec();
+    let input_arg = &format!("-d {input}");
+    let sink_arg = &format!("move {sink}");
+    let args = vec!["-t sink-input", input_arg, sink_arg];
 
     exec_with_args("ponymix", args);
 }
